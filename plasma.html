@@ -1,0 +1,108 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+
+<head>
+  <title>plasma</title>
+</head>
+
+<body>
+  <script type="text/javascript">
+    var cost = new Array(64);
+    var hext = new Array(256);
+    var colt = new Array(256);
+
+    var plasmaTableHeight = 20;
+    var plasmaTableWidth = 30;
+    var plasmaCellHeight = 12;
+    var plasmaCellWidth = 8;
+
+    function init() {
+      var hexen = new Array('0', '1', '2', '3', '4', '5', '6', '7',
+        '8', '9', 'A', 'B', 'C', 'D', 'E', 'F');
+
+      for (var i = 0; i < 256; i++) {
+        hext[i] = '' + hexen[Math.floor(i / 16)] + hexen[i % 16];
+      }
+
+      for (var i = 0; i < 256; i++) {
+        cost[i] = Math.round(255 * Math.cos(i / 256 * 2 * Math.PI));
+      }
+
+      for (var i = 0; i < 64; i++) {
+        colt[i] = '#FC' + hext[4 * i] + '' + hext[4 * (63 - i)];
+        colt[i + 64] = '#' + hext[4 * (63 - i)] + 'FC' + hext[4 * i];
+        colt[i + 128] = '#00' + hext[4 * (63 - i)] + 'FC';
+        colt[i + 192] = '#' + hext[4 * i] + '00FC';
+      }
+
+      makePlasmaTable();
+
+      setTimeout(() =>
+        doPlasma(
+          Math.floor(256 * Math.random()),
+          Math.floor(256 * Math.random()),
+          Math.floor(256 * Math.random()),
+          Math.floor(256 * Math.random())
+        ),
+        1);
+    }
+
+    function makePlasmaTable() {
+      document.write('<table cellspacing="0">');
+
+      for (var i = 0; i < plasmaTableHeight; i++) {
+        document.write('<tr>');
+        for (var j = 0; j < plasmaTableWidth; j++) {
+          document.write('<td id="pl_' + i + '_' + j + '" style="'
+            + 'background:black;'
+            + 'width:' + plasmaCellWidth + 'px;'
+            + 'height:' + plasmaCellHeight + 'px;'
+            + '"></td>');
+        }
+        document.write('</tr>');
+      }
+      document.write('</table>');
+    }
+
+    function doPlasma(pos1, pos2, pos3, pos4) {
+      var tpos3 = pos3;
+      var tpos4 = pos4;
+
+      for (var i = 0; i < plasmaTableHeight; i++) {
+        var tpos1 = pos1;
+        var tpos2 = pos2;
+
+        for (var j = 0; j < plasmaTableWidth; j++) {
+          var cellId = "pl_" + i + '_' + j;
+          var cell = document.getElementById(cellId);
+
+          var colorNum = (cost[tpos1] + cost[tpos2] + cost[tpos3] + cost[tpos4]) % 256;
+
+          if (colorNum < 0) {
+            colorNum += 256;
+          }
+
+          cell.style.background = colt[colorNum];
+
+          tpos1 = (tpos1 + 4) % 256;
+          tpos2 = (tpos2 + 3) % 256;
+        }
+        tpos3 = (tpos3 + 4) % 256;
+        tpos4 = (tpos4 + 5) % 256;
+      }
+
+      pos1 = (pos1 - 4 + Math.floor(2 * Math.random()) + 256) % 256;
+      pos2 = (pos2 - Math.floor(3 * Math.random()) + 256) % 256;
+      pos3 = (pos3 + 4 - Math.floor(2 * Math.random()) + 256) % 256;
+      pos4 = (pos4 - Math.floor(3 * Math.random()) + 256) % 256;
+
+      setTimeout(() =>
+        doPlasma(pos1, pos2, pos3, pos4),
+        16);
+    }
+
+    init();
+  </script>
+</body>
+
+</html>
